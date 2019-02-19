@@ -48,6 +48,63 @@ public class default_controller
         
         return "hola";
     }
+    @RequestMapping(value = "/agregar_libro", method = RequestMethod.GET)
+    public String agregar_libro_view_get(Model model)
+    {   
+                model.addAttribute("nombre","");
+                model.addAttribute("id",0);
+                model.addAttribute("editorial","");
+                model.addAttribute("autor","");
+                model.addAttribute("url","/sprin/agregar_libro");
+        return "agregar_libro";
+    }
+     @RequestMapping(value = "/agregar_libro", method = RequestMethod.POST)
+    public String agregar_libro_post(Model model,@RequestParam("nombre") String nombre,@RequestParam("editorial") String editorial,@RequestParam("autor") String autor) throws SQLException
+    {        
+        
+        Connection con = db.getDB();
+        Statement stmt= con.createStatement();  
+        stmt.executeUpdate("INSERT INTO libros (nombre, autor, editorial) VALUES ('"+nombre+"','"+autor+"','"+editorial+"')");
+         return "redirect:/libros";
+
+    }
+     @RequestMapping(value = "/editar_libro", method = RequestMethod.POST)
+    public String editar_libro_post(Model model,@RequestParam("id") String id) throws SQLException
+    {        
+         Connection con = db.getDB();
+        Statement stmt= con.createStatement();  
+        ResultSet rs=stmt.executeQuery("select * from libros WHERE id='"+id+"' "); // * obtener libro de DB   
+         while (rs.next()) {                          
+                model.addAttribute("nombre",rs.getString("nombre"));
+                model.addAttribute("id",rs.getString("id"));
+                model.addAttribute("editorial",rs.getString("editorial"));
+                model.addAttribute("autor",rs.getString("autor"));
+                model.addAttribute("url","/sprin/editar_libro_post");
+         }
+     
+         return "agregar_libro";
+
+    }
+     @RequestMapping(value = "/editar_libro_post", method = RequestMethod.POST)
+    public String editar_libro_post_post(Model model,@RequestParam("id") String id,@RequestParam("nombre") String nombre,@RequestParam("autor") String autor,@RequestParam("editorial") String editorial) throws SQLException
+    {        String sSQL = "UPDATE libros SET nombre='"+nombre+"',editorial='"+editorial+"',autor='"+autor+"' WHERE id='"+id+"' ";
+         Connection con = db.getDB();
+        Statement stmt= con.createStatement();  
+        PreparedStatement pstm = con.prepareStatement(sSQL);
+         pstm.executeUpdate();
+
+         return "redirect:/libros";
+
+    }
+     @RequestMapping(value = "/eliminar_libro", method = RequestMethod.POST)
+    public String eliminar_libro_post(Model model,@RequestParam("id") String id) throws SQLException
+    {        
+        Connection con = db.getDB();
+        Statement stmt= con.createStatement();  
+        stmt.executeUpdate("DELETE FROM libros WHERE id ='"+id+"'");
+         return "redirect:/libros";
+
+    }
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index_view(Model model)
     {   
